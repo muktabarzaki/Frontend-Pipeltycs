@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import IconStatistics from '../icon/iconcreateaccount/Statisticsicon.svg';
 import IconGlobal from '../icon/iconcreateaccount/Global.svg';
 import IconStack from '../icon/iconcreateaccount/Stack.svg';
@@ -6,9 +8,10 @@ import IconEmail from '../icon/iconcreateaccount/IkonEmail.svg';
 import IconKategory from '../icon/iconcreateaccount/Kategory.svg';
 import IconKunci from '../icon/iconcreateaccount/Kunci.svg';
 import IconGoogle from '../icon/iconcreateaccount/Google.svg';
-import { Link } from "react-router-dom";
+
 
 export default function CreateAccount() {
+    const [showModal, setShowModal] = useState(false);
     return(
         <div className='min-h-screen bg-[#F9FBFD] flex items-center justify-center p-8 gap-16'>
             <div className='flex flex-col items-center w-full max-w-sm text-center'>
@@ -96,18 +99,28 @@ export default function CreateAccount() {
                         <input type="checkbox" className='rounded border-gray-300 text-[#635BFF] focus:ring-[#635BFF] cursor-pointer' />
                         <span className='text-[10px] text-gray-500 cursor-pointer'>I agree to the Terms of Service and Privacy Policy</span>
                     </div>
-                    <button type='button' className='w-full bg-gradient-to-r from-[#635BFF] to-[#D946EF] hover:opacity-90 text-white font-semibold py-2.5 rounded-lg transition-opacity mt-2'>Create Account</button>
+                    <button type='button' onClick={() => setShowModal(true)} className='w-full bg-gradient-to-r from-[#635BFF] to-[#D946EF] hover:opacity-90 text-white font-semibold py-2.5 rounded-lg transition-opacity mt-2'>Create Account</button>
                     <div className='relative flex items-center justify-center mt-2 mb-4'>
                         <div className='absolute inset-x-0 h-px bg-gray-200'></div>
                         <span className='relative bg-white px-4 text-[10px] text-gray-500 font-medium'>Or Contiune With</span>
                     </div>
                     <button type='button' className='w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-sm font-medium py-2 rounded-lg transition-colors'>
                         <img src={IconGoogle} alt="IkonGoogle" className="w-5 h-5 object-contain" />
-                        <span>Contiune With Google</span>
+                        <span>Continue With Google</span>
                     </button>
                     <p className='flex items-center justify-center'>Already have an account? <Link to="/" className='text-[#635BFF] hover:underline font-semibold'>Login</Link></p>
                 </form>
             </div>
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all">
+                    <div className="bg-white rounded-2xl shadow-2xl p-10 w-[350px] text-center flex flex-col items-center animate-bounce-short">
+                        <h3 className="text-xl font-bold text-gray-800 mb-6 leading-relaxed">
+                            Your Account<br />Successfully Created!
+                        </h3>
+                        <Link to="/" className="bg-gradient-to-r from-[#635BFF] to-[#D946EF] hover:opacity-90 text-white font-semibold py-2.5 rounded-lg transition-opacity w-full">Login</Link>
+                    </div>
+                </div>
+            )}
         </div>
     )
 
