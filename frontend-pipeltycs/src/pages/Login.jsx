@@ -1,10 +1,11 @@
-import shopeeImg from '../icon/shopee.png';
-import tokpedImg from '../icon/tokopedia.png';
-import tiktokImg from '../icon/tiktokshop.png';
-import igImg from '../icon/Instagram.png';
-import IkonEmail from '../icon/IkonEmail.svg';
-import LogoKunci from '../icon/LogoKunci.svg';
-import LogoGoogle from '../icon/Google.svg';
+import shopeeImg from '../icon/iconlogin/shopee.png';
+import tokpedImg from '../icon/iconlogin/tokopedia.png';
+import tiktokImg from '../icon/iconlogin/tiktokshop.png';
+import igImg from '../icon/iconlogin/Instagram.png';
+import IkonEmail from '../icon/iconlogin/IkonEmail.svg';
+import LogoKunci from '../icon/iconlogin/LogoKunci.svg';
+import LogoGoogle from '../icon/iconlogin/Google.svg';
+import { Link } from "react-router-dom";
 
 export default function Login() {
     return(
@@ -78,8 +79,8 @@ export default function Login() {
                             <img src={LogoGoogle} alt="Google" className='w-5 h-5 object-contain'/> 
                             <span className='flex-shrink-0'>Continue With Google</span>
                     </button>
-                    <p className='text-center text-sm text-gray-600 mt-6'>
-                        Don't have an account? <a href="#" className='text-medium bg-gradient-to-r from-[#6155F5] to-[#CB30E0] bg-clip-text text-transparent hover:text-[#c038d6] font-medium'>Create Account</a>
+                    <p className="text-center text-sm text-gray-600 mt-6">
+                        Don't have an account? <Link to="/register" className="text-[#635BFF] hover:underline font-medium">Create Account</Link>
                     </p>
                 </form>
             </div>
