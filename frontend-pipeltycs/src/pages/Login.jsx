@@ -6,6 +6,7 @@ import IkonEmail from '../icon/iconlogin/IkonEmail.svg';
 import LogoKunci from '../icon/iconlogin/LogoKunci.svg';
 import LogoGoogle from '../icon/iconlogin/Google.svg';
 import { Link } from "react-router-dom";
+import { useState } from 'react';
 
 export default function Login() {
     return(
@@ -68,9 +69,9 @@ export default function Login() {
                         </label>
                         <a href="#" className='text-medium bg-gradient-to-r from-[#6155F5] to-[#CB30E0] bg-clip-text text-transparent hover:text-[#c038d6] font-medium'>forgot password</a>
                     </div>
-                    <button type='button' className='w-full bg-gradient-to-r from-[#635BFF] to-[#D946EF] hover:opacity-90 text-white font-semibold py-2.5 rounded-lg transition-opacity mt-2'>
-                        Login
-                    </button>
+                    <Link to='/dashboard' className='w-full flex justify-center items-center bg-gradient-to-r from-[#6155F5] to-[#CB30E0] hover:opacity-90 text-white font-semibold py-2.5 rounded-lg transition-opacity mt-4'>
+                    Login {/*Tombol Login */}
+                    </Link>
                     <div className='relative flex items-center justify-center mt-3 mb-3'>
                         <div className='absolute inset-x-0 h-px bg-gray-200'></div>
                         <span className='relative bg-white px-4 text-xs text-gray-500'>Or Contiune with</span>
