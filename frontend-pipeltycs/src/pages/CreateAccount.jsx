@@ -62,6 +62,13 @@ export default function CreateAccount() {
                         </div>
                     </div>
                     <div>
+                        <label className='block text-xs font-medium text-gray-700 mb-1'>Nama Toko</label>
+                        <div className='relative'>
+                            <img src={IconUser} alt="IkonUser" className="absolute left-3 top-2.5 w-5 h-5 opacity-50 object-contain" />
+                            <input type="text" placeholder='Mainan Abah' className='w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#635BFF] transition-colors' />
+                        </div>
+                    </div>
+                    <div>
                         <label className='block text-xs font-medium text-gray-700 mb-1'>Email</label>
                         <div className='relative'>
                             <img src={IconEmail} alt="IkonEmail" className="absolute left-3 top-2.5 w-5 h-5 opacity-50 object-contain" />
