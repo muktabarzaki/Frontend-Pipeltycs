@@ -8,18 +8,72 @@ import ProductAnalyst from "./pages/ProductAnalyst";
 import CampaignPerformance from "./pages/CampaignPerformence";
 import Settings from "./pages/Settings";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* PUBLIC */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<CreateAccount />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/salesinsight" element={<SalesInsigth />} />
-        <Route path="/platform-comparison" element={<PlatformComparison />} />
-        <Route path="/product-analyst" element={<ProductAnalyst />} />
-        <Route path="/campaign-performance" element={<CampaignPerformance />} />
-        <Route path="/settings" element={<Settings />} />
+
+        {/* PROTECTED */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/salesinsight"
+          element={
+            <ProtectedRoute>
+              <SalesInsigth />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/platform-comparison"
+          element={
+            <ProtectedRoute>
+              <PlatformComparison />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/product-analyst"
+          element={
+            <ProtectedRoute>
+              <ProductAnalyst />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/campaign-performance"
+          element={
+            <ProtectedRoute>
+              <CampaignPerformance />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );
