@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import axios from "axios";
-
 import IconStatistics from '../icon/iconcreateaccount/Statisticsicon.svg';
 import IconGlobal from '../icon/iconcreateaccount/Global.svg';
 import IconStack from '../icon/iconcreateaccount/Stack.svg';
