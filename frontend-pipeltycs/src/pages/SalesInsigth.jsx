@@ -1,198 +1,348 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../lib/axios';
 import Layout from '../components/Layout';
+import {
+    LineChart, Line, BarChart, Bar,
+    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 
-// Placeholder untuk import ikon (Silakan sesuaikan path-nya dengan file SVG milikmu)
-import IconSettingUser from '../icon/icondashboard/UserPutih.svg';
-import IconSettingBell from '../icon/icondashboard/Setting.svg'; // Ganti dengan icon bell
-import IconSettingGlobe from '../icon/icondashboard/Globe.svg'; 
-import IconSettingDownload from '../icon/icondashboard/Product.svg'; // Ganti dengan icon download
+import IconSetting from '../icon/icondashboard/Setting.svg';
 
-export default function Settings() {
-    return <Layout><h1 className="text-2xl font-bold">Settings</h1></Layout>;
+export default function SalesInsight() {
+
+    // ==========================================
+    // STATE TANPA DUMMY DATA
+    // ==========================================
     const [isLoading, setIsLoading] = useState(true);
 
-    // ==========================================
-    // 1. WADAH DATA (STATE)
-    // ==========================================
-    
-    // State User Profile
-    const [profile, setProfile] = useState({
-        fullName: 'Admin Pipeltycs',
-        email: 'admin@pipeltycs.com',
-        businessName: 'Pipeltycs Corp',
-        phone: '+62 812-3456-7890'
+    const [metrics, setMetrics] = useState({
+        avgOrderValue: '',
+        aovGrowth: '',
+        retention: '',
+        retentionGrowth: '',
+        repeatRate: '',
+        repeatGrowth: '',
+        growthRate: '',
+        growthPeriod: ''
     });
 
-    // State Notifications
-    const [notifications, setNotifications] = useState({
-        emailAlerts: true,
-        salesUpdates: true,
-        inventoryAlerts: true,
-        weeklyReports: false,
-        marketingTips: true
-    });
-
-    // State Preferences
-    const [preferences, setPreferences] = useState({
-        darkMode: true,
-        language: 'English',
-        currency: 'US Dollar (USD)'
-    });
+    const [revenueData, setRevenueData] = useState([]);
+    const [categoryData, setCategoryData] = useState([]);
+    const [retentionData, setRetentionData] = useState([]);
+    const [tableData, setTableData] = useState([]);
 
     // ==========================================
-    // 2. SIMULASI API KE LARAVEL
+    // FETCH DATA DARI API LARAVEL
     // ==========================================
     useEffect(() => {
-        // Simulasi mengambil data pengaturan dari database
-        axios.get('http://localhost:8000/api/settings')
+        api.get('/sales-insights')
             .then(response => {
-                // setProfile(response.data.profile);
-                // setNotifications(response.data.notifications);
-                // setPreferences(response.data.preferences);
+
+                setMetrics(response.data.metrics);
+                setRevenueData(response.data.revenue);
+                setCategoryData(response.data.category);
+                setRetentionData(response.data.retention);
+                setTableData(response.data.table);
+
                 setIsLoading(false);
             })
             .catch(error => {
-                console.error("Menggunakan data mockup karena backend belum siap.", error.message);
+                console.error("Gagal mengambil data:", error.message);
                 setIsLoading(false);
             });
     }, []);
 
     // ==========================================
-    // 3. HANDLER FUNGSI
+    // LOADING STATE
     // ==========================================
-    
-    // Handler untuk input text (Profile & Preferences)
-    const handleProfileChange = (e) => setProfile({ ...profile, [e.target.name]: e.target.value });
-    const handlePreferenceChange = (e) => setPreferences({ ...preferences, [e.target.name]: e.target.value });
-
-    // Handler khusus untuk Toggle Switch (Notifications)
-    const toggleNotification = (key) => setNotifications({ ...notifications, [key]: !notifications[key] });
-    const toggleDarkMode = () => setPreferences({ ...preferences, darkMode: !preferences.darkMode });
-
-    // Fungsi submit
-    const handleSaveProfile = (e) => {
-        e.preventDefault();
-        // axios.post('http://localhost:8000/api/settings/profile', profile)
-        alert("Perubahan profil siap dikirim ke database!");
-    };
-
-    // Komponen Reusable untuk Toggle Switch
-    const ToggleSwitch = ({ checked, onChange }) => (
-        <button 
-            type="button"
-            onClick={onChange}
-            className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors duration-300 ease-in-out ${checked ? 'bg-[#635BFF]' : 'bg-gray-200'}`}
-        >
-            <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out ${checked ? 'translate-x-6' : 'translate-x-0'}`} />
-        </button>
-    );
+    if (isLoading) {
+        return (
+            <Layout>
+                <div className="flex justify-center items-center h-[300px]">
+                    <p className="text-gray-500">Loading data...</p>
+                </div>
+            </Layout>
+        );
+    }
 
     // ==========================================
-    // 4. TAMPILAN ANTARMUKA
+    // UI
     // ==========================================
     return (
         <Layout>
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold mb-1 text-gray-800">Settings</h1>
-                <p className="text-sm text-gray-500">Manage your account, integrations, and preferences</p>
+
+            {/* HEADER */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+                <div>
+                    <h1 className="text-2xl font-bold mb-1 text-gray-800">
+                        Sales Performance Insights
+                    </h1>
+
+                    <p className="text-sm text-gray-500">
+                        Deep dive into your sales metrics and customer behavior
+                    </p>
+                </div>
+
+                {/* FILTER */}
+                <div className="flex items-center gap-4 mt-4 md:mt-0">
+
+                    <div className="relative w-40">
+                        <select className="w-full appearance-none bg-white border border-gray-200 rounded-full pl-4 pr-10 py-2 text-sm font-medium text-gray-600 focus:outline-none">
+
+                            <option>All Platform</option>
+                            <option>Shopee</option>
+                            <option>Tokopedia</option>
+
+                        </select>
+
+                        <img
+                            src={IconSetting}
+                            alt="arrow"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-50 rotate-90"
+                        />
+                    </div>
+
+                    <div className="relative w-40">
+                        <select className="w-full appearance-none bg-white border border-gray-200 rounded-full pl-4 pr-10 py-2 text-sm font-medium text-gray-600 focus:outline-none">
+
+                            <option>Last 30 Days</option>
+                            <option>This Month</option>
+                            <option>Last Year</option>
+
+                        </select>
+
+                        <img
+                            src={IconSetting}
+                            alt="arrow"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-50 rotate-90"
+                        />
+                    </div>
+
+                </div>
             </div>
 
-            <div className="max-w-4xl flex flex-col gap-8">
-                
-                {/* --- 1. USER PROFILE --- */}
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 bg-[#635BFF]/10 rounded-xl flex items-center justify-center">
-                            {/* Menggunakan tag img sesuai aturan (bukan svg) */}
-                            <img src={IconSettingUser} alt="User Profile" className="w-6 h-6 object-contain filter invert-[.3] sepia-[.9] saturate-[30] hue-rotate-[240deg]" />
-                        </div>
-                        <h2 className="text-lg font-bold text-gray-800">User Profile</h2>
-                    </div>
+            {/* METRIC CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
 
-                    <form onSubmit={handleSaveProfile}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-2">Full Name</label>
-                                <input type="text" name="fullName" value={profile.fullName} onChange={handleProfileChange} className="w-full bg-gray-50/50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#635BFF]/30 transition-all" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-2">Email</label>
-                                <input type="email" name="email" value={profile.email} onChange={handleProfileChange} className="w-full bg-gray-50/50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#635BFF]/30 transition-all" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-2">Business Name</label>
-                                <input type="text" name="businessName" value={profile.businessName} onChange={handleProfileChange} className="w-full bg-gray-50/50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#635BFF]/30 transition-all" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-2">Phone</label>
-                                <input type="tel" name="phone" value={profile.phone} onChange={handleProfileChange} className="w-full bg-gray-50/50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#635BFF]/30 transition-all" />
-                            </div>
-                        </div>
-                        <button type="submit" className="bg-[#635BFF] hover:bg-indigo-600 text-white font-medium text-sm py-2.5 px-6 rounded-lg shadow-sm transition-all flex items-center gap-2">
-                            <span className="text-lg">💾</span> Save Changes
-                        </button>
-                    </form>
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-medium text-gray-500 mb-4">
+                        Average Order Value
+                    </h3>
+
+                    <p className="text-4xl font-bold text-gray-800 mb-1">
+                        ${metrics.avgOrderValue}
+                    </p>
+
+                    <p className="text-sm text-[#22C55E] font-medium">
+                        {metrics.aovGrowth}
+                    </p>
                 </div>
 
-                {/* --- 3. PREFERENCES --- */}
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center">
-                            <img src={IconSettingGlobe} alt="Preferences" className="w-6 h-6 object-contain filter invert-[.4] sepia-[1] saturate-[10] hue-rotate-[180deg]" />
-                        </div>
-                        <h2 className="text-lg font-bold text-gray-800">Preferences</h2>
-                    </div>
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-medium text-gray-500 mb-4">
+                        Customer Retention
+                    </h3>
 
-                    <div className="flex flex-col gap-4">
-                        <div className="border border-gray-100 rounded-xl p-4">
-                            <div className="flex items-center gap-3 mb-2">
-                                <span className="text-xl">🌐</span>
-                                <h4 className="text-sm font-semibold text-gray-800">Language</h4>
-                            </div>
-                            <select name="language" value={preferences.language} onChange={handlePreferenceChange} className="w-full bg-gray-50/50 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#635BFF]/30 cursor-pointer">
-                                <option>English</option>
-                                <option>Indonesia</option>
-                            </select>
-                        </div>
+                    <p className="text-4xl font-bold text-gray-800 mb-1">
+                        {metrics.retention}%
+                    </p>
 
-                        <div className="border border-gray-100 rounded-xl p-4">
-                            <div className="flex items-center gap-3 mb-2">
-                                <span className="text-xl font-bold text-gray-500 pl-1">$</span>
-                                <h4 className="text-sm font-semibold text-gray-800">Currency</h4>
-                            </div>
-                            <select name="currency" value={preferences.currency} onChange={handlePreferenceChange} className="w-full bg-gray-50/50 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#635BFF]/30 cursor-pointer">
-                                <option>US Dollar (USD)</option>
-                                <option>Indonesian Rupiah (IDR)</option>
-                            </select>
-                        </div>
-                    </div>
+                    <p className="text-sm text-[#22C55E] font-medium">
+                        {metrics.retentionGrowth}
+                    </p>
                 </div>
 
-                {/* --- 4. EXPORT DATA --- */}
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
-                            <img src={IconSettingDownload} alt="Export" className="w-6 h-6 object-contain filter invert-[.5] sepia-[1] saturate-[10] hue-rotate-[300deg]" />
-                        </div>
-                        <h2 className="text-lg font-bold text-gray-800">Export Data</h2>
-                    </div>
-                    <p className="text-sm text-gray-500 mb-6">Download your sales data and analytics reports</p>
-                    
-                    <div className="flex flex-wrap gap-4">
-                        <button className="bg-[#635BFF] hover:bg-indigo-600 text-white font-medium text-sm py-2.5 px-6 rounded-lg shadow-sm transition-all">
-                            Export as CSV
-                        </button>
-                        <button className="bg-[#8B5CF6] hover:bg-purple-600 text-white font-medium text-sm py-2.5 px-6 rounded-lg shadow-sm transition-all">
-                            Export as Excel
-                        </button>
-                        <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium text-sm py-2.5 px-6 rounded-lg shadow-sm transition-all">
-                            Export as PDF
-                        </button>
-                    </div>
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-medium text-gray-500 mb-4">
+                        Repeat Purchase Rate
+                    </h3>
+
+                    <p className="text-4xl font-bold text-gray-800 mb-1">
+                        {metrics.repeatRate}%
+                    </p>
+
+                    <p className="text-sm text-[#22C55E] font-medium">
+                        {metrics.repeatGrowth}
+                    </p>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-medium text-gray-500 mb-4">
+                        Growth Rate
+                    </h3>
+
+                    <p className="text-4xl font-bold text-gray-800 mb-1">
+                        {metrics.growthRate}%
+                    </p>
+
+                    <p className="text-sm text-[#22C55E] font-medium">
+                        {metrics.growthPeriod}
+                    </p>
                 </div>
 
             </div>
+
+            {/* REVENUE CHART */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
+
+                <div className="h-[250px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={revenueData}>
+
+                            <CartesianGrid strokeDasharray="3 3" />
+
+                            <XAxis dataKey="week" />
+                            <YAxis />
+                            <Tooltip />
+
+                            <Line
+                                type="monotone"
+                                dataKey="revenue"
+                                stroke="#8B5CF6"
+                                strokeWidth={2}
+                            />
+
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+
+            </div>
+
+            {/* 2 CHART */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+                {/* CATEGORY */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+
+                    <h2 className="text-base font-bold text-gray-800 mb-4">
+                        Revenue by Category
+                    </h2>
+
+                    <div className="h-[250px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={categoryData}>
+
+                                <CartesianGrid strokeDasharray="3 3" />
+
+                                <XAxis dataKey="category" />
+                                <YAxis />
+                                <Tooltip />
+
+                                <Bar
+                                    dataKey="revenue"
+                                    fill="#9D8DF1"
+                                />
+
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                </div>
+
+                {/* RETENTION */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+
+                    <h2 className="text-base font-bold text-gray-800 mb-4">
+                        Customer Retention Trend
+                    </h2>
+
+                    <div className="h-[250px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={retentionData}>
+
+                                <CartesianGrid strokeDasharray="3 3" />
+
+                                <XAxis dataKey="month" />
+                                <YAxis />
+                                <Tooltip />
+
+                                <Line
+                                    type="monotone"
+                                    dataKey="rate"
+                                    stroke="#A78BFA"
+                                    strokeWidth={2}
+                                />
+
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                </div>
+
+            </div>
+
+            {/* TABLE */}
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8">
+
+                <h2 className="text-lg font-bold text-gray-800 mb-1">
+                    Detailed Performance Metrics
+                </h2>
+
+                <p className="text-sm text-gray-500 mb-8">
+                    Comprehensive breakdown of key indicators
+                </p>
+
+                <div className="overflow-x-auto">
+
+                    <table className="w-full text-left border-collapse">
+
+                        <thead>
+                            <tr className="border-b border-gray-100">
+
+                                <th className="py-4 px-2 text-sm font-bold text-gray-600">
+                                    Metric
+                                </th>
+
+                                <th className="py-4 px-2 text-sm font-bold text-gray-600 text-center">
+                                    This Month
+                                </th>
+
+                                <th className="py-4 px-2 text-sm font-bold text-gray-600 text-center">
+                                    Last Month
+                                </th>
+
+                                <th className="py-4 px-2 text-sm font-bold text-gray-600 text-right">
+                                    Change
+                                </th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {tableData.map((row, index) => (
+                                <tr
+                                    key={index}
+                                    className="border-b border-gray-50"
+                                >
+
+                                    <td className="py-5 px-2 text-sm font-semibold text-gray-800">
+                                        {row.metric}
+                                    </td>
+
+                                    <td className="py-5 px-2 text-sm text-center text-gray-800">
+                                        {row.thisMonth}
+                                    </td>
+
+                                    <td className="py-5 px-2 text-sm text-center text-gray-800">
+                                        {row.lastMonth}
+                                    </td>
+
+                                    <td className="py-5 px-2 text-sm text-right font-semibold text-[#22C55E]">
+                                        {row.change}
+                                    </td>
+
+                                </tr>
+                            ))}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
         </Layout>
     );
 }

@@ -9,7 +9,6 @@ import IconSettingGlobe from '../icon/icondashboard/Globe.svg';
 import IconSettingDownload from '../icon/icondashboard/Product.svg'; // Ganti dengan icon download
 
 export default function Settings() {
-    return <Layout><h1 className="text-2xl font-bold">Settings</h1></Layout>;
     const [isLoading, setIsLoading] = useState(true);
 
     // ==========================================

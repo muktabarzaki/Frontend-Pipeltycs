@@ -1,237 +1,311 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../lib/axios';
 import Layout from '../components/Layout';
-import { 
-    LineChart, Line, BarChart, Bar, 
-    XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
+import {
+    LineChart, Line, PieChart, Pie, Cell, BarChart, Bar,
+    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
-export default function PlatformComparison() {
-    return <Layout><h1 className="text-2xl font-bold">Platform Comparison</h1></Layout>;
-    // ==========================================
-    // 1. WADAH DATA (STATE) & DUMMY DATA (Sesuai Figma)
-    // ==========================================
-    const [isLoading, setIsLoading] = useState(true);
+// Warna platform yang konsisten
+const PLATFORM_COLORS = {
+    'Shopee':     '#F97316',
+    'Tokopedia':  '#22C55E',
+    'TikTok Shop':'#000000',
+    'Website':    '#38BDF8',
+    'Instagram':  '#E1306C',
+};
 
-    const [summaryCards, setSummaryCards] = useState({
-        bestPlatform: { platform: 'Shopee', value: '$45,000', desc: 'Daily Revenue', color: 'bg-[#F97316]' },
-        highestConversion: { platform: 'TikTok Shop', value: '5.6%', desc: 'Conversion Rate', color: 'bg-black' },
-        bestGrowth: { platform: 'TikTok Shop', value: '+28.4%', desc: 'Monthly Growth', color: 'bg-black' }
+// Helper: format tanggal jadi label singkat, misal "20 Mei"
+
+// Helper: hitung ulang summary dari topProducts & salesTrend
+
+
+export default function Dashboard() {
+    // ==========================================
+    // STATE — kosong, diisi dari API atau Add Data
+    // ==========================================
+    const [summary, setSummary] = useState({
+        totalSales: 0, salesGrowth: 0, unitsSold: 0, avgOrderValue: 0
+    });
+    const [salesTrend, setSalesTrend]         = useState([]);   // [{ date, sales }]
+    const [revenuePlatform, setRevenuePlatform] = useState([]); // [{ name, value, color }]
+    const [peakHours, setPeakHours]           = useState([]);   // [{ time, order }]
+    const [topProducts, setTopProducts]       = useState([]);   // [{ id, name, platform, units, rev, growth, color }]
+
+    const [formData, setFormData] = useState({
+        platform: '', waktu: '', kategori: '', keuntungan: '',
+        tanggal: '', namaProduk: '', jumlah: ''
     });
 
-    const [revenueComparison, setRevenueComparison] = useState([
-        { week: 'Week 1', Instagram: 12000, Shopee: 35000, Tiktokshop: 18000, Tokopedia: 28000 },
-        { week: 'Week 2', Instagram: 15000, Shopee: 32000, Tiktokshop: 22000, Tokopedia: 32000 },
-        { week: 'Week 3', Instagram: 18000, Shopee: 42000, Tiktokshop: 25000, Tokopedia: 30000 },
-        { week: 'Week 4', Instagram: 20000, Shopee: 45000, Tiktokshop: 28000, Tokopedia: 35000 },
-    ]);
-
-    const [conversionData, setConversionData] = useState([
-        { platform: 'Shopee', rate: 4.2 },
-        { platform: 'Tokopedia', rate: 3.8 },
-        { platform: 'TikTok', rate: 5.6 },
-        { platform: 'Instagram', rate: 2.9 },
-    ]);
-
-    const [feesData, setFeesData] = useState([
-        { platform: 'Shopee', fee: 7200 },
-        { platform: 'Tokopedia', rate: 0, fee: 4900 }, // rate diabaikan, hanya dummy data struktur
-        { platform: 'Tiktok', fee: 3800 },
-        { platform: 'Instagram', fee: 2700 },
-    ]);
-
-    const [trafficRevenueData, setTrafficRevenueData] = useState([
-        { platform: 'Shopee', Revenue: 145000, Traffics: 45000 },
-        { platform: 'Tokopedia', Revenue: 98000, Traffics: 38000 },
-        { platform: 'Tiktok', Revenue: 76000, Traffics: 28000 },
-        { platform: 'Instagram', Revenue: 54000, Traffics: 15000 },
-    ]);
-
-    const [tableData, setTableData] = useState([
-        { platform: 'Shopee', revenue: '$145,000', orders: 487, conversion: '4.2%', aov: '$298', growth: '+12.3%', color: 'bg-[#F97316]' },
-        { platform: 'Tokopedia', revenue: '$98,000', orders: 312, conversion: '3.8%', aov: '$314', growth: '+8.7%', color: 'bg-[#22C55E]' },
-        { platform: 'TikTok Shop', revenue: '$76,000', orders: 267, conversion: '5.6%', aov: '$285', growth: '+15.2%', color: 'bg-black' },
-        { platform: 'Instagram', revenue: '$54,000', orders: 171, conversion: '2.9%', aov: '$316', growth: '+28.4%', color: 'bg-[#D946EF]' },
-    ]);
+    const [isLoading, setIsLoading] = useState(true);
 
     // ==========================================
-    // 2. SIMULASI API KE LARAVEL
+    // PEMANGGILAN API KE LARAVEL
     // ==========================================
     useEffect(() => {
-        axios.get('http://localhost:8000/api/platform-comparison')
-            .then(response => {
-                // setSummaryCards(response.data.summary);
-                // setRevenueComparison(response.data.revenue_comparison);
-                // setConversionData(response.data.conversion);
-                // setFeesData(response.data.fees);
-                // setTrafficRevenueData(response.data.traffic_revenue);
-                // setTableData(response.data.table_data);
+        api.get('/dashboard-data')
+            .then((response) => {
+                setSummary(response.data.summary);
+                setSalesTrend(response.data.trend);
+                setRevenuePlatform(response.data.platform);
+                setPeakHours(response.data.peak_hours);
+                setTopProducts(response.data.top_products);
                 setIsLoading(false);
             })
-            .catch(error => {
-                console.error("Menggunakan data mockup karena backend belum siap.", error.message);
+            .catch((error) => {
+                console.error("Backend belum merespon.", error.message);
                 setIsLoading(false);
             });
     }, []);
 
+    const handleChange = (e) =>
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+
     // ==========================================
-    // 3. TAMPILAN ANTARMUKA
+    // ADD DATA — langsung update semua state lokal
     // ==========================================
+    const handleAddData = async (e) => {
+    e.preventDefault();
+
+    const { platform, waktu, kategori, keuntungan, tanggal, namaProduk, jumlah } = formData;
+
+    if (!platform || !namaProduk || !jumlah) {
+        alert("Isi minimal: Platform, Nama Produk, dan Jumlah Penjualan.");
+        return;
+    }
+
+    try {
+        // Kirim ke database
+        await api.post('/dashboard/add-sale', {
+            platform:     platform,
+            product_name: namaProduk,
+            kategori:     kategori,
+            waktu:        waktu,
+            tanggal:      tanggal,
+            jumlah:       parseInt(jumlah),
+            keuntungan:   parseFloat(keuntungan),
+        });
+
+        // Reset form
+        setFormData({
+            platform: '', waktu: '', kategori: '', keuntungan: '',
+            tanggal: '', namaProduk: '', jumlah: ''
+        });
+
+        // Refresh data dari database
+        const res = await api.get('/dashboard-data');
+        setSummary(res.data.summary);
+        setSalesTrend(res.data.trend);
+        setRevenuePlatform(res.data.platform);
+        setPeakHours(res.data.peak_hours);
+        setTopProducts(res.data.top_products);
+
+        alert("Data berhasil disimpan!");
+
+    } catch (err) {
+        console.error('Gagal simpan:', err.message);
+        alert("Gagal menyimpan data. Coba lagi.");
+    }
+};
+
     return (
         <Layout>
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold mb-1 text-gray-800">Platform Comparison</h1>
-                <p className="text-sm text-gray-500">Compare performance across Shopee, Tokopedia, TikTok Shop, and Instagram</p>
-            </div>
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold mb-1">Sales Overview</h1>
+                <p className="text-gray-500 mb-8">Your complete sales performance across all platforms</p>
 
-            {/* --- 3 KARTU SUMMARY --- */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* Card 1 */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-medium text-gray-500 mb-4">Best Platform Today</h3>
-                    <span className={`text-[11px] font-bold text-white px-3 py-1 rounded-full ${summaryCards.bestPlatform.color}`}>
-                        {summaryCards.bestPlatform.platform}
-                    </span>
-                    <p className="text-3xl font-bold text-gray-800 mt-4 mb-1">{summaryCards.bestPlatform.value}</p>
-                    <p className="text-xs text-gray-400 font-medium">{summaryCards.bestPlatform.desc}</p>
-                </div>
-                {/* Card 2 */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-medium text-gray-500 mb-4">Highest Conversion</h3>
-                    <span className={`text-[11px] font-bold text-white px-3 py-1 rounded-full ${summaryCards.highestConversion.color}`}>
-                        {summaryCards.highestConversion.platform}
-                    </span>
-                    <p className="text-3xl font-bold text-gray-800 mt-4 mb-1">{summaryCards.highestConversion.value}</p>
-                    <p className="text-xs text-gray-400 font-medium">{summaryCards.highestConversion.desc}</p>
-                </div>
-                {/* Card 3 */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-medium text-gray-500 mb-4">Best Growth Rate</h3>
-                    <span className={`text-[11px] font-bold text-white px-3 py-1 rounded-full ${summaryCards.bestGrowth.color}`}>
-                        {summaryCards.bestGrowth.platform}
-                    </span>
-                    <p className="text-3xl font-bold text-gray-800 mt-4 mb-1">{summaryCards.bestGrowth.value}</p>
-                    <p className="text-xs text-gray-400 font-medium">{summaryCards.bestGrowth.desc}</p>
-                </div>
-            </div>
-
-            {/* --- GRAFIK LINE (REVENUE COMPARISON) --- */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
-                <h2 className="text-base font-bold text-gray-800 mb-1">Revenue Comparison (Last 4 Weeks)</h2>
-                <p className="text-xs text-gray-500 mb-6">Weekly revenue trends across all platforms</p>
-                <div className="h-[250px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={revenueComparison} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                            <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 11}} dy={10} />
-                            <YAxis axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 11}} />
-                            <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                            <Legend iconType="circle" wrapperStyle={{fontSize: '12px', color: '#6B7280', paddingTop: '10px'}} />
-                            
-                            <Line type="monotone" dataKey="Instagram" stroke="#A855F7" strokeWidth={2} dot={{r: 3}} activeDot={{r: 5}} />
-                            <Line type="monotone" dataKey="Shopee" stroke="#F87171" strokeWidth={2} dot={{r: 3}} activeDot={{r: 5}} />
-                            <Line type="monotone" dataKey="Tiktokshop" stroke="#38BDF8" strokeWidth={2} dot={{r: 3}} activeDot={{r: 5}} />
-                            <Line type="monotone" dataKey="Tokopedia" stroke="#FBBF24" strokeWidth={2} dot={{r: 3}} activeDot={{r: 5}} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-
-            {/* --- 2 GRAFIK BAR KECIL --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                {/* Bar 1: Conversion Rate */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h2 className="text-base font-bold text-gray-800 mb-1">Conversion Rate by Platform</h2>
-                    <p className="text-xs text-gray-500 mb-6">Percentage of visitors who make a purchase</p>
-                    <div className="h-[220px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={conversionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                <XAxis dataKey="platform" axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 11}} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 11}} />
-                                <Tooltip cursor={{fill: '#F3F4F6'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                                <Legend iconType="square" wrapperStyle={{fontSize: '11px', color: '#6B7280'}} />
-                                <Bar dataKey="rate" name="Conversion Rate (%)" fill="#9D8DF1" radius={[2, 2, 0, 0]} barSize={40} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                {/* --- 4 KOTAK RINGKASAN ATAS --- */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div className="bg-[#635BFF] rounded-2xl p-6 text-white shadow-lg shadow-indigo-200/50 relative overflow-hidden">
+                        {isLoading && <div className="absolute inset-0 bg-white/20 animate-pulse"></div>}
+                        <h3 className="text-sm font-medium mb-4 opacity-90">Total Sales</h3>
+                        <p className="text-3xl font-bold mb-1">${summary.totalSales.toLocaleString()}</p>
+                        <p className="text-xs opacity-80">+12.5% from last month</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <h3 className="text-sm font-medium text-gray-500 mb-4">Sales Growth</h3>
+                        <p className="text-3xl font-bold text-gray-800 mb-1">{summary.salesGrowth}%</p>
+                        <p className="text-xs text-[#22C55E] font-medium">+vs previous period</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <h3 className="text-sm font-medium text-gray-500 mb-4">Units Sold</h3>
+                        <p className="text-3xl font-bold text-gray-800 mb-1">{summary.unitsSold.toLocaleString()}</p>
+                        <p className="text-xs text-[#22C55E] font-medium">+8.2% this week</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <h3 className="text-sm font-medium text-gray-500 mb-4">Avg Order Value</h3>
+                        <p className="text-3xl font-bold text-gray-800 mb-1">${summary.avgOrderValue.toLocaleString()}</p>
+                        <p className="text-xs text-red-500 font-medium">-2.1% from avg</p>
                     </div>
                 </div>
 
-                {/* Bar 2: Platform Fees */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h2 className="text-base font-bold text-gray-800 mb-1">Platform Fees Comparison</h2>
-                    <p className="text-xs text-gray-500 mb-6">Total fees charged by each platform</p>
-                    <div className="h-[220px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={feesData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                <XAxis dataKey="platform" axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 11}} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 11}} />
-                                <Tooltip cursor={{fill: '#F3F4F6'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                                <Legend iconType="square" wrapperStyle={{fontSize: '11px', color: '#6B7280'}} />
-                                <Bar dataKey="fee" name="Fee" fill="#FCA5A5" radius={[2, 2, 0, 0]} barSize={40} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                {/* --- FORM INPUT DATA --- */}
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8">
+                    <h2 className="text-base font-bold text-gray-800 mb-6">Add the data you need!</h2>
+                    <form onSubmit={handleAddData} className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-gray-600">Platform:</label>
+                                <select name="platform" value={formData.platform} onChange={handleChange} className="w-[70%] bg-gray-100/70 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:ring-[#635BFF]/30">
+                                    <option value="">Pilih Platform...</option>
+                                    <option value="Shopee">Shopee</option>
+                                    <option value="Tokopedia">Tokopedia</option>
+                                    <option value="TikTok Shop">TikTok Shop</option>
+                                    <option value="Website">Website</option>
+                                    <option value="Instagram">Instagram</option>
+                                </select>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-gray-600">Waktu:</label>
+                                <input type="time" name="waktu" value={formData.waktu} onChange={handleChange} className="w-[70%] bg-gray-100/70 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:ring-[#635BFF]/30" />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-gray-600">Kategori Produk:</label>
+                                <select name="kategori" value={formData.kategori} onChange={handleChange} className="w-[70%] bg-gray-100/70 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:ring-[#635BFF]/30">
+                                    <option value="">Pilih Kategori...</option>
+                                    <option value="elektronik">Elektronik</option>
+                                    <option value="fashion">Fashion</option>
+                                </select>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-bold text-gray-800">Total Keuntungan:</label>
+                                <div className="w-[70%] relative">
+                                    <span className="absolute left-3 top-2 text-gray-500 text-xs font-medium">Rp.</span>
+                                    <input type="number" name="keuntungan" value={formData.keuntungan} onChange={handleChange} className="w-full bg-gray-100/70 border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-xs focus:ring-[#635BFF]/30" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-gray-600">Tanggal:</label>
+                                <input type="date" name="tanggal" value={formData.tanggal} onChange={handleChange} className="w-[70%] bg-gray-100/70 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:ring-[#635BFF]/30" />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-gray-600">Nama Produk:</label>
+                                <input type="text" name="namaProduk" value={formData.namaProduk} onChange={handleChange} className="w-[70%] bg-gray-100/70 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:ring-[#635BFF]/30" />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-gray-600">Jumlah Penjualan:</label>
+                                <input type="number" name="jumlah" value={formData.jumlah} onChange={handleChange} className="w-[70%] bg-gray-100/70 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:ring-[#635BFF]/30" />
+                            </div>
+                            <div className="flex justify-end mt-1">
+                                <button type="submit" className="bg-[#635BFF] hover:bg-indigo-600 text-white font-semibold text-xs py-2 px-8 rounded-lg shadow-md transition-all">
+                                    Add Data
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                {/* --- GRAFIK LINE & PIE --- */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="md:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <h2 className="text-sm font-bold text-gray-800 mb-1">Sales Trend (Last 30 Days)</h2>
+                        <p className="text-xs text-gray-500 mb-6">Daily revenue performance</p>
+                        {salesTrend.length === 0 ? (
+                            <div className="h-[250px] flex items-center justify-center text-gray-400 text-sm">
+                                Belum ada data. Tambahkan data melalui form di atas.
+                            </div>
+                        ) : (
+                            <div className="h-[250px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={salesTrend}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 11 }} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 11 }} dx={-10} />
+                                        <Tooltip />
+                                        <Line type="monotone" dataKey="sales" stroke="#635BFF" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <h2 className="text-sm font-bold text-gray-800 mb-1">Revenue by Platform</h2>
+                        <p className="text-xs text-gray-500 mb-6">Distribution across channels</p>
+                        {revenuePlatform.length === 0 ? (
+                            <div className="h-[250px] flex items-center justify-center text-gray-400 text-sm text-center px-4">
+                                Belum ada data platform.
+                            </div>
+                        ) : (
+                            <div className="h-[250px] w-full flex items-center justify-center">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie data={revenuePlatform} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value">
+                                            {revenuePlatform.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
                     </div>
                 </div>
-            </div>
 
-            {/* --- GRAFIK DOUBLE BAR (TRAFFIC VS REVENUE) --- */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
-                <h2 className="text-base font-bold text-gray-800 mb-1">Traffic vs Revenue Analysis</h2>
-                <p className="text-xs text-gray-500 mb-6">Comparing visitor traffic and generated revenue</p>
-                <div className="h-[250px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={trafficRevenueData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                            <XAxis dataKey="platform" axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 11}} dy={10} />
-                            <YAxis axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 11}} />
-                            <Tooltip cursor={{fill: '#F3F4F6'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                            <Legend iconType="square" wrapperStyle={{fontSize: '11px', color: '#6B7280'}} />
-                            <Bar dataKey="Revenue" fill="#38BDF8" radius={[2, 2, 0, 0]} barSize={35} />
-                            <Bar dataKey="Traffics" fill="#A3E635" radius={[2, 2, 0, 0]} barSize={35} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                {/* --- GRAFIK BAR --- */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
+                    <h2 className="text-sm font-bold text-gray-800 mb-1">Peak Sales Hours</h2>
+                    <p className="text-xs text-gray-500 mb-6">Orders by time of day</p>
+                    {peakHours.length === 0 ? (
+                        <div className="h-[250px] flex items-center justify-center text-gray-400 text-sm">
+                            Belum ada data jam penjualan.
+                        </div>
+                    ) : (
+                        <div className="h-[250px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={peakHours} barSize={60}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                    <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} dx={-10} />
+                                    <Tooltip cursor={{ fill: '#F3F4F6' }} />
+                                    <Bar dataKey="order" fill="#A78BFA" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
                 </div>
-            </div>
 
-            {/* --- TABEL DETAIL --- */}
-            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8">
-                <h2 className="text-base font-bold text-gray-800 mb-1">Detailed Platform Metrics</h2>
-                <p className="text-xs text-gray-500 mb-8">Complete comparison of all key metrics</p>
-                
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b border-gray-100">
-                                <th className="py-4 px-2 text-sm font-bold text-gray-600">Platform</th>
-                                <th className="py-4 px-2 text-sm font-bold text-gray-600">Revenue</th>
-                                <th className="py-4 px-2 text-sm font-bold text-gray-600">Orders</th>
-                                <th className="py-4 px-2 text-sm font-bold text-gray-600">Conversion</th>
-                                <th className="py-4 px-2 text-sm font-bold text-gray-600">AOV</th>
-                                <th className="py-4 px-2 text-sm font-bold text-gray-600">Growth</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {tableData.map((row, index) => (
-                                <tr key={index} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
-                                    <td className="py-5 px-2">
-                                        <span className={`text-xs font-bold text-white px-3 py-1.5 rounded-full shadow-sm ${row.color}`}>
-                                            {row.platform}
-                                        </span>
-                                    </td>
-                                    <td className="py-5 px-2 text-sm font-semibold text-gray-800">{row.revenue}</td>
-                                    <td className="py-5 px-2 text-sm text-gray-800">{row.orders}</td>
-                                    <td className="py-5 px-2 text-sm text-gray-800">{row.conversion}</td>
-                                    <td className="py-5 px-2 text-sm text-gray-800">{row.aov}</td>
-                                    <td className="py-5 px-2 text-sm font-bold text-[#22C55E]">{row.growth}</td>
-                                </tr>
+                {/* --- DAFTAR TOP PRODUK --- */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
+                    <h2 className="text-sm font-bold text-gray-800 mb-1">Top 5 Best-Selling Products</h2>
+                    <p className="text-xs text-gray-500 mb-6">Highest performing items this month</p>
+
+                    {topProducts.length === 0 ? (
+                        <div className="py-12 text-center text-gray-400 text-sm">
+                            Belum ada produk. Tambahkan data melalui form di atas.
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-4">
+                            {topProducts.slice(0, 5).map((product) => (
+                                <div key={product.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors border-b border-gray-50 last:border-0">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-8 h-8 rounded-lg bg-[#8B5CF6] text-white flex items-center justify-center font-bold text-sm">
+                                            {product.id}
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-gray-800">{product.name}</h4>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="text-[10px] font-bold text-white px-2 py-0.5 rounded-full" style={{ backgroundColor: product.color }}>
+                                                    {product.platform}
+                                                </span>
+                                                <span className="text-xs text-gray-500">{product.units} units • Rp {product.rev.toLocaleString('id-ID')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className={`text-sm font-bold flex items-center gap-1 ${product.growth > 0 ? 'text-[#22C55E]' : product.growth < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                                        {product.growth > 0 ? '↑' : product.growth < 0 ? '↓' : '—'} {product.growth !== 0 ? Math.abs(product.growth) + '%' : 'Baru'}
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
+                        </div>
+                    )}
                 </div>
-            </div>
 
+            </div>
         </Layout>
     );
 }
