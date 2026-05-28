@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../lib/axios';
 import Layout from '../components/Layout';
+import { useApp } from '../context/AppContext';
 import {
     LineChart, Line, BarChart, Bar,
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -14,6 +15,7 @@ export default function SalesInsight() {
     // STATE TANPA DUMMY DATA
     // ==========================================
     const [isLoading, setIsLoading] = useState(true);
+    const { formatCurrency } = useApp();
 
     const [metrics, setMetrics] = useState({
         avgOrderValue: '',
@@ -130,7 +132,7 @@ export default function SalesInsight() {
                     </h3>
 
                     <p className="text-4xl font-bold text-gray-800 mb-1">
-                        ${metrics.avgOrderValue}
+                        {formatCurrency(metrics.avgOrderValue)}
                     </p>
 
                     <p className="text-sm text-[#22C55E] font-medium">

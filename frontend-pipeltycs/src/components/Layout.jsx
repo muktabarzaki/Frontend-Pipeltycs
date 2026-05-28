@@ -8,10 +8,14 @@ import IconComparasion from '../icon/icondashboard/Comparasion.svg';
 import IconProduct from '../icon/icondashboard/Product.svg';
 import IconShopping from '../icon/icondashboard/Shopping.svg';
 import IconSetting from '../icon/icondashboard/Setting.svg';
+import { useApp } from '../context/AppContext';
+
 
 export default function Layout({children}) {
     const location = useLocation();
+    const { currency, setCurrency, language, setLanguage } = useApp();
     return (
+        
         <div className="flex flex-col h-screen font-sans bg-[#F8F9FA] text-gray-900">
             
             {/*HEADER*/}
@@ -27,17 +31,26 @@ export default function Layout({children}) {
                 <div className="flex items-center gap-6 text-sm text-gray-600 font-medium">
                     <div className="flex items-center text-gray-600 hover:text-[#635BFF] transition-colors">
                         <img src={IconGlobe} alt="IconGlobe" className="w-4 h-4 mr-1 object-contain opacity-90" />
-                        <select className="bg-transparent text-sm font-medium border-none focus:ring-0 cursor-pointer outline-none p-0 pr-4 text-gray-600">
-                            <option value="en" className="text-black">English</option>
-                            <option value="id" className="text-black">Indonesia</option>
+                        <select
+                         value={language}
+                         onChange={e => setLanguage(e.target.value)}
+                         className="bg-transparent text-sm font-medium border-none focus:ring-0 cursor-pointer outline-none p-0 pr-4 text-gray-600"
+                         >
+                        <option value="en" className="text-black">English</option>
+                        <option value="id" className="text-black">Indonesia</option>
                         </select>
+
                     </div>
                     
                     <div className="flex items-center text-gray-600 hover:text-[#635BFF] transition-colors">
-                        <select className="bg-transparent text-sm font-medium border-none focus:ring-0 cursor-pointer outline-none p-0 pr-4 text-gray-600">
-                            <option value="usd" className="text-black">$ USD</option>
-                            <option value="idr" className="text-black">Rp IDR</option>
-                            <option value="eur" className="text-black">€ EUR</option>
+                       <select
+                         value={currency}
+                         onChange={e => setCurrency(e.target.value)}
+                         className="bg-transparent text-sm font-medium border-none focus:ring-0 cursor-pointer outline-none p-0 pr-4 text-gray-600"
+                     >
+                        <option value="usd" className="text-black">$ USD</option>
+                        <option value="idr" className="text-black">Rp IDR</option>
+                        <option value="eur" className="text-black">€ EUR</option>
                         </select>
                     </div>
                     

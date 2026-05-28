@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../lib/axios';
 import Layout from '../components/Layout';
+import { useApp } from '../context/AppContext';
 import {
     BarChart,
     Bar,
@@ -17,7 +18,7 @@ export default function ProductAnalyst() {
     // STATE TANPA DUMMY DATA
     // ==========================================
     const [isLoading, setIsLoading] = useState(true);
-
+    const { formatCurrency } = useApp();
     const [alert, setAlert] = useState({
         show: false,
         message: ''

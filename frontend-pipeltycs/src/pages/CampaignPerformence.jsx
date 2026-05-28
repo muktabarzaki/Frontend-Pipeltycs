@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../lib/axios';
 import Layout from '../components/Layout';
+import { useApp } from '../context/AppContext';
 import {
     LineChart,
     Line,
@@ -15,7 +16,7 @@ import {
 } from 'recharts';
 
 export default function CampaignPerformance() {
-
+    const { formatCurrency } = useApp();
     const [isLoading, setIsLoading] = useState(true);
 
     // ==========================================

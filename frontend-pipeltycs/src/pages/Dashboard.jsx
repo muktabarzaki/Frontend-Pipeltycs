@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../lib/axios';
 import Layout from '../components/Layout';
+import { useApp } from '../context/AppContext';
 import {
     LineChart, Line, PieChart, Pie, Cell, BarChart, Bar,
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -24,6 +25,7 @@ export default function Dashboard() {
     // ==========================================
     // STATE — kosong, diisi dari API atau Add Data
     // ==========================================
+    const { formatCurrency, t } = useApp();
     const [summary, setSummary] = useState({
         totalSales: 0, salesGrowth: 0, unitsSold: 0, avgOrderValue: 0
     });
@@ -119,7 +121,7 @@ export default function Dashboard() {
                     <div className="bg-[#635BFF] rounded-2xl p-6 text-white shadow-lg shadow-indigo-200/50 relative overflow-hidden">
                         {isLoading && <div className="absolute inset-0 bg-white/20 animate-pulse"></div>}
                         <h3 className="text-sm font-medium mb-4 opacity-90">Total Sales</h3>
-                        <p className="text-3xl font-bold mb-1">${summary.totalSales.toLocaleString()}</p>
+                        <p className="text-3xl font-bold mb-1">{formatCurrency(summary.totalSales)}</p>
                         <p className="text-xs opacity-80">+12.5% from last month</p>
                     </div>
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -134,7 +136,7 @@ export default function Dashboard() {
                     </div>
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                         <h3 className="text-sm font-medium text-gray-500 mb-4">Avg Order Value</h3>
-                        <p className="text-3xl font-bold text-gray-800 mb-1">${summary.avgOrderValue.toLocaleString()}</p>
+                       <p className="text-3xl font-bold text-gray-800 mb-1">{formatCurrency(summary.avgOrderValue)}</p>
                         <p className="text-xs text-red-500 font-medium">-2.1% from avg</p>
                     </div>
                 </div>
@@ -292,7 +294,7 @@ export default function Dashboard() {
                                                 <span className="text-[10px] font-bold text-white px-2 py-0.5 rounded-full" style={{ backgroundColor: product.color }}>
                                                     {product.platform}
                                                 </span>
-                                                <span className="text-xs text-gray-500">{product.units} units • Rp {product.rev.toLocaleString('id-ID')}</span>
+                                               <span className="text-xs text-gray-500">{product.units} units • {formatCurrency(product.rev)}</span>
                                             </div>
                                         </div>
                                     </div>
