@@ -13,7 +13,7 @@ import { useApp } from '../context/AppContext';
 
 export default function Layout({children}) {
     const location = useLocation();
-    const { currency, setCurrency, language, setLanguage } = useApp();
+    const { currency, setCurrency, language, setLanguage, t } = useApp();
     return (
         
         <div className="flex flex-col h-screen font-sans bg-[#F8F9FA] text-gray-900">
@@ -72,32 +72,32 @@ export default function Layout({children}) {
                         
                         <Link to="/dashboard" className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium cursor-pointer transition-colors ${location.pathname === '/dashboard' ? 'bg-[#635BFF] text-white shadow-md shadow-indigo-200/50' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800 border border-transparent'}`}>
                             <img src={IconDashboard} alt="Dashboard" className={`w-5 h-5 object-contain transition-all ${location.pathname === '/dashboard' ? 'opacity-100' : 'invert opacity-60'}`} />
-                            <span className="text-sm">Dashboard</span>
+                            <span className="text-sm">{t('dashboard')}</span>
                         </Link>
 
                         <Link to="/salesinsight" className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium cursor-pointer transition-colors ${location.pathname === '/salesinsight' ? 'bg-[#635BFF] text-white shadow-md shadow-indigo-200/50' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800 border border-transparent'}`}>
                              <img src={IconSales} alt="SalesInsigth" className={`w-5 h-5 object-contain transition-all ${location.pathname === '/salesinsight' ? 'opacity-100' : 'invert opacity-60'}`} />
-                             <span className="text-sm">Sales Insight</span>
+                             <span className="text-sm">{t('salesInsight')}</span>
                         </Link>
 
                         <Link to="/platform-comparison" className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium cursor-pointer transition-colors ${location.pathname === '/platform-comparison' ? 'bg-[#635BFF] text-white shadow-md shadow-indigo-200/50' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800 border border-transparent'}`}>
                              <img src={IconComparasion} alt="Platform Comparison" className={`w-5 h-5 object-contain transition-all ${location.pathname === '/platform-comparison' ? 'opacity-100' : 'invert opacity-60'}`} />
-                             <span className="text-sm">Platform Comparison</span>
+                             <span className="text-sm">{t('platformComparison')}</span>
                         </Link>
 
                         <Link to="/product-analyst" className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium cursor-pointer transition-colors ${location.pathname === '/product-analyst' ? 'bg-[#635BFF] text-white shadow-md shadow-indigo-200/50' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800 border border-transparent'}`}>
                              <img src={IconProduct} alt="Product Analyst" className={`w-5 h-5 object-contain transition-all ${location.pathname === '/product-analyst' ? 'opacity-100' : 'invert opacity-60'}`} />
-                             <span className="text-sm">Product Analyst</span>
+                             <span className="text-sm">{t('productAnalyst')}</span>
                         </Link>
 
                         <Link to="/campaign-performance" className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium cursor-pointer transition-colors ${location.pathname === '/campaign-performance' ? 'bg-[#635BFF] text-white shadow-md shadow-indigo-200/50' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800 border border-transparent'}`}>
                              <img src={IconShopping} alt="Campaign Performance" className={`w-5 h-5 object-contain transition-all ${location.pathname === '/campaign-performance' ? 'opacity-100' : 'invert opacity-60'}`} />
-                             <span className="text-sm">Campaign Performance</span>
+                             <span className="text-sm">{t('campaignPerformance')}</span>
                         </Link>
 
                         <Link to="/settings" className={`flex items-center gap-3 px-4 py-2.5 mt-2 rounded-lg font-medium cursor-pointer transition-colors ${location.pathname === '/settings' ? 'bg-[#635BFF] text-white shadow-md shadow-indigo-200/50' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800 border border-transparent'}`}>
                              <img src={IconSetting} alt="Settings" className={`w-5 h-5 object-contain transition-all ${location.pathname === '/settings' ? 'opacity-100' : 'invert opacity-60'}`} />
-                             <span className="text-sm">Settings</span>
+                            <span className="text-sm">{t('settings')}</span>
                         </Link>
 
                     </div>

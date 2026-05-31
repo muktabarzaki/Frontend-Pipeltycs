@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from '../lib/axios';
 import IconStatistics from '../icon/iconcreateaccount/Statisticsicon.svg';
 import IconGlobal from '../icon/iconcreateaccount/Global.svg';
 import IconStack from '../icon/iconcreateaccount/Stack.svg';
@@ -26,42 +26,25 @@ export default function CreateAccount() {
 
     // HANDLE REGISTER
     const handleRegister = async (e) => {
-
-        e.preventDefault();
-
-        // VALIDASI PASSWORD
-        if (password !== confirmPassword) {
-            alert("Confirm password tidak sama");
-            return;
-        }
-
-        try {
-
-            const response = await axios.post(
-                "http://127.0.0.1:8000/api/register",
-                {
-                   name,
-                   email,
-                   password,
-                   password_confirmation: confirmPassword
-                }
-            );
-
-            console.log(response.data);
-
-            // TAMPILKAN MODAL
-            setShowModal(true);
-
-        } catch (error) {
-
-            console.log(error.response?.data);
-
-            alert(
-                error.response?.data?.message ||
-                "Register gagal"
-            );
-        }
-    };
+    e.preventDefault();
+    if (password !== confirmPassword) {
+        alert("Confirm password tidak sama");
+        return;
+    }
+    try {
+        await api.post('/register', {
+            name,
+            email,
+            password,
+            password_confirmation: confirmPassword,
+            business_name: storeName,
+            business_category: category,
+        });
+        setShowModal(true);
+    } catch (error) {
+        alert(error.response?.data?.message || 'Register gagal');
+    }
+};
 
     return(
         <div className='min-h-screen bg-[#F9FBFD] flex items-center justify-center p-8 gap-16'>
