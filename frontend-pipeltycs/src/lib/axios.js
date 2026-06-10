@@ -1,12 +1,13 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api',
+    // Menggunakan variabel environment Vercel, jika tidak terbaca otomatis fallback ke localhost
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     },
-    withCredentials: false,  // ← ganti jadi false
+    withCredentials: false, 
 });
 
 // Otomatis kirim token di setiap request
@@ -24,7 +25,7 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
-            window.location.href = '/login';
+            window.location.href = '/'; // Diubah ke '/' agar kembali ke landing page / login utama kamu
         }
         return Promise.reject(error);
     }
