@@ -25,6 +25,22 @@ export default function ForgotPassword() {
         e.preventDefault();
         setLoading(true);
         setError('');
+
+        // VALIDASI KETENTUAN PASSWORD (Min 8 Karakter, 1 Huruf Besar, 1 Huruf Kecil, 1 Angka)
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+        if (!passwordRegex.test(form.password)) {
+            setError('Password harus minimal 8 karakter, mengandung setidaknya 1 huruf besar, 1 huruf kecil, dan 1 angka.');
+            setLoading(false);
+            return;
+        }
+
+        // VALIDASI MATCH PASSWORD
+        if (form.password !== form.password_confirmation) {
+            setError('Konfirmasi password baru tidak cocok.');
+            setLoading(false);
+            return;
+        }
+
         try {
             await api.post('/reset-password', form);
             setSuccess(true);
@@ -102,6 +118,7 @@ export default function ForgotPassword() {
                                 value={form.email}
                                 onChange={e => setForm({...form, email: e.target.value})}
                                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] transition-all"
+                                required
                             />
                         </div>
                     </div>
@@ -117,8 +134,13 @@ export default function ForgotPassword() {
                                 value={form.password}
                                 onChange={e => setForm({...form, password: e.target.value})}
                                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] transition-all"
+                                required
                             />
                         </div>
+                        {/* KETENTUAN TEXT */}
+                        <p className='text-[10px] text-gray-400 mt-1 pl-1'>
+                            * Min. 8 karakter yang terdiri dari huruf besar, huruf kecil, dan angka.
+                        </p>
                     </div>
 
                     {/* Confirm Password */}
@@ -132,6 +154,7 @@ export default function ForgotPassword() {
                                 value={form.password_confirmation}
                                 onChange={e => setForm({...form, password_confirmation: e.target.value})}
                                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] transition-all"
+                                required
                             />
                         </div>
                     </div>

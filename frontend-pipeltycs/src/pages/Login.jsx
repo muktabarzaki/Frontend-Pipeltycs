@@ -19,20 +19,20 @@ export default function Login() {
     const [password, setPassword] = useState("");
 
     // AUTO REDIRECT JIKA SUDAH LOGIN
-   
+    
 
     // HANDLE LOGIN
     const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-        const response = await api.post('/login', { email, password });
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        navigate('/dashboard');
-    } catch (error) {
-        alert(error.response?.data?.message || 'Login gagal');
-    }
-};
+        e.preventDefault();
+        try {
+            const response = await api.post('/login', { email, password });
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            navigate('/dashboard');
+        } catch (error) {
+            alert(error.response?.data?.message || 'Login gagal');
+        }
+    };
 
     return(
         <div className="min-h-screen bg-[#F9FBFD] flex items-center justify-center p-8 gap-20">
@@ -112,6 +112,7 @@ export default function Login() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className='w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] transition-all'
+                                required
                             />
 
                         </div>
@@ -137,6 +138,7 @@ export default function Login() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className='w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] transition-all'
+                                required
                             />
 
                         </div>
@@ -176,7 +178,6 @@ export default function Login() {
                     <div className='relative flex items-center justify-center mt-3 mb-3'>
 
                         <div className='absolute inset-x-0 h-px bg-gray-200'></div>
-
 
                     </div>
 

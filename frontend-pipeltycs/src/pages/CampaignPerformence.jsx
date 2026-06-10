@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function CampaignPerformance() {
-    const { t } = useApp();
+    const { t, currency } = useApp(); 
     const [isLoading, setIsLoading] = useState(true);
 
     const [summaryCards, setSummaryCards] = useState({ impressions: {}, clicks: {}, ctr: {}, conversions: {}, roas: {} });
@@ -29,6 +29,21 @@ export default function CampaignPerformance() {
                 setIsLoading(false);
             });
     }, []);
+
+    // FUNGSI FORMAT UTAMA (Menampilkan Angka Penuh Tanpa Singkatan)
+    const formatCurrency = (value) => {
+        if (value === undefined || value === null) return '';
+        
+        const activeCurrency = currency || 'USD'; 
+        const locale = activeCurrency === 'IDR' ? 'id-ID' : activeCurrency === 'EUR' ? 'de-DE' : 'en-US';
+
+        return new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: activeCurrency,
+            minimumFractionDigits: activeCurrency === 'IDR' ? 0 : 2,
+            maximumFractionDigits: activeCurrency === 'IDR' ? 0 : 2,
+        }).format(value);
+    };
 
     if (isLoading) {
         return (
@@ -94,20 +109,28 @@ export default function CampaignPerformance() {
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h2 className="text-sm font-bold text-gray-800 mb-1">{t('adSpend')}</h2>
                     <p className="text-xs text-gray-400 mb-6">{t('investmentReturns')}</p>
-                    <div className="h-[230px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={adSpendRevenue}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="week" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Line type="monotone" dataKey="adSpend" stroke="#1E3A8A" />
-                                <Line type="monotone" dataKey="revenue" stroke="#0EA5E9" />
-                            </LineChart>
-                        </ResponsiveContainer>
+                    
+                    {/* BERHASIL DIUBAH: Pembungkus div ini ditambahkan scrollbar horizontal otomatis jika area menyempit */}
+                    <div className="h-[230px] overflow-x-auto overflow-y-hidden">
+                        {/* Memberikan lebar minimum statis agar grafik bisa di-scroll saat layar kecil */}
+                        <div className="h-full min-width-[500px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                {/* Mengatur margin left menjadi 50 agar angka nominal jutaan penuh dan simbol mata uang memiliki ruang */}
+                                <LineChart data={adSpendRevenue} margin={{ top: 10, right: 10, left: 50, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="week" />
+                                    {/* Lebar sumbu Y diatur ke 100 agar dapat menampung teks angka penuh yang sangat panjang */}
+                                    <YAxis width={100} tickFormatter={(v) => formatCurrency(v)} />
+                                    <Tooltip formatter={(value, name) => [formatCurrency(value), name === 'adSpend' ? 'Ad Spend' : 'Revenue']} />
+                                    <Legend />
+                                    <Line type="monotone" dataKey="adSpend" stroke="#1E3A8A" />
+                                    <Line type="monotone" dataKey="revenue" stroke="#0EA5E9" />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
                 </div>
+                
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h2 className="text-sm font-bold text-gray-800 mb-1">{t('ctrPlatform')}</h2>
                     <p className="text-xs text-gray-400 mb-6">{t('ctrComparison')}</p>
@@ -183,8 +206,8 @@ export default function CampaignPerformance() {
                                     <td className="py-4 px-2 text-center">{item.clicks}</td>
                                     <td className="py-4 px-2 text-center">{item.ctr}</td>
                                     <td className="py-4 px-2 text-center">{item.conversions}</td>
-                                    <td className="py-4 px-2 text-center">{item.spend}</td>
-                                    <td className="py-4 px-2 text-center font-bold">{item.revenue}</td>
+                                    <td className="py-4 px-2 text-center">{formatCurrency(item.spend)}</td>
+                                    <td className="py-4 px-2 text-center font-bold">{formatCurrency(item.revenue)}</td>
                                     <td className="py-4 px-2 text-right">
                                         <span className="bg-[#E6FDF9] text-[#00BFA6] font-bold px-2 py-1 rounded">{item.roas}</span>
                                     </td>

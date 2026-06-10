@@ -10,7 +10,7 @@ import {
 export default function PlatformComparison() {
     const [isLoading, setIsLoading] = useState(true);
     const { t } = useApp();
-
+    const { formatCurrency } = useApp();
     const [summaryCards, setSummaryCards] = useState({ bestPlatform: {}, highestConversion: {}, bestGrowth: {} });
     const [revenueComparison, setRevenueComparison]   = useState([]);
     const [conversionData, setConversionData]         = useState([]);
@@ -56,7 +56,9 @@ export default function PlatformComparison() {
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                     <h3 className="text-sm font-medium text-gray-500 mb-4">{t('bestPlatform')}</h3>
                     <span className={`text-[11px] font-bold text-white px-3 py-1 rounded-full ${summaryCards.bestPlatform?.color}`}>{summaryCards.bestPlatform?.platform}</span>
-                    <p className="text-3xl font-bold text-gray-800 mt-4 mb-1">{summaryCards.bestPlatform?.value}</p>
+                    <p className="text-3xl font-bold text-gray-800 mt-4 mb-1">
+                    {formatCurrency(summaryCards.bestPlatform?.value)}
+                    </p>
                     <p className="text-xs text-gray-400 font-medium">{summaryCards.bestPlatform?.desc}</p>
                 </div>
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -160,10 +162,10 @@ export default function PlatformComparison() {
                             {tableData.map((row, index) => (
                                 <tr key={index} className="border-b border-gray-50">
                                     <td className="py-4 px-2">{row.platform}</td>
-                                    <td className="py-4 px-2">{row.revenue}</td>
+                                    <td className="py-4 px-2">{formatCurrency(row.revenue)}</td>
                                     <td className="py-4 px-2">{row.orders}</td>
                                     <td className="py-4 px-2">{row.conversion}</td>
-                                    <td className="py-4 px-2">{row.aov}</td>
+                                    <td className="py-4 px-2">{formatCurrency(row.aov)}</td>
                                     <td className="py-4 px-2 text-green-500 font-bold">{row.growth}</td>
                                 </tr>
                             ))}

@@ -20,6 +20,7 @@ export default function App() {
 
         {/* PUBLIC */}
         <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} /> 
         <Route path="/register" element={<CreateAccount />} />
 
         {/* PROTECTED */}

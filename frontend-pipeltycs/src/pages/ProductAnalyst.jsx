@@ -88,7 +88,12 @@ export default function ProductAnalyst() {
                                         </div>
                                     </td>
                                     <td className="py-4 px-2 text-center">
-                                        <span className={`text-[10px] font-bold text-white px-3 py-1 rounded-full ${product.platformColor}`}>{product.platform}</span>
+                                       <span
+    className="text-[10px] font-bold text-white px-3 py-1 rounded-full"
+    style={{ backgroundColor: product.platformColor }}
+>
+    {product.platform}
+</span>
                                     </td>
                                     <td className="py-4 px-2 text-sm text-gray-800 text-center font-medium">{product.sold}</td>
                                     <td className="py-4 px-2 text-sm text-gray-800 text-center font-medium">{product.revenue}</td>
