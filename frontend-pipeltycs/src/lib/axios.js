@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-    // Menggunakan variabel environment Vercel, jika tidak terbaca otomatis fallback ke localhost
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+    // Langsung dikunci ke API InfinityFree produksi milikmu
+    baseURL: 'http://pipelytcs.rf.gd/api',
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -25,7 +25,7 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
-            window.location.href = '/'; // Diubah ke '/' agar kembali ke landing page / login utama kamu
+            window.location.href = '/';
         }
         return Promise.reject(error);
     }
