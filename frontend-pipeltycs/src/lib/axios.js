@@ -1,13 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
-    // Langsung dikunci ke API InfinityFree produksi milikmu
-    baseURL: 'http://pipelytcs.rf.gd/api',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-    },
-    withCredentials: false, 
+  baseURL: 'frontend-pipeltycs.vercel.app.infinityfreeapp.com/api', // <-- Ganti dengan URL domain asli kamu
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  withCredentials: false, 
 });
 
 // Otomatis kirim token di setiap request
