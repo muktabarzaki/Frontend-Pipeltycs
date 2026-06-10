@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from '../lib/axios';
 import IconStatistics from '../icon/iconcreateaccount/Statisticsicon.svg';
 import IconGlobal from '../icon/iconcreateaccount/Global.svg';
 import IconStack from '../icon/iconcreateaccount/Stack.svg';
@@ -26,40 +26,32 @@ export default function CreateAccount() {
 
     // HANDLE REGISTER
     const handleRegister = async (e) => {
-
         e.preventDefault();
 
-        // VALIDASI PASSWORD
+        // VALIDASI KETENTUAN PASSWORD (Min 8 Karakter, 1 Huruf Besar, 1 Huruf Kecil, 1 Angka)
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            alert("Password harus minimal 8 karakter, mengandung setidaknya 1 huruf besar, 1 huruf kecil, dan 1 angka.");
+            return;
+        }
+
         if (password !== confirmPassword) {
             alert("Confirm password tidak sama");
             return;
         }
 
         try {
-
-            const response = await axios.post(
-                "http://127.0.0.1:8000/api/register",
-                {
-                   name,
-                   email,
-                   password,
-                   password_confirmation: confirmPassword
-                }
-            );
-
-            console.log(response.data);
-
-            // TAMPILKAN MODAL
+            await api.post('/register', {
+                name,
+                email,
+                password,
+                password_confirmation: confirmPassword,
+                business_name: storeName,
+                business_category: category,
+            });
             setShowModal(true);
-
         } catch (error) {
-
-            console.log(error.response?.data);
-
-            alert(
-                error.response?.data?.message ||
-                "Register gagal"
-            );
+            alert(error.response?.data?.message || 'Register gagal');
         }
     };
 
@@ -165,6 +157,7 @@ export default function CreateAccount() {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 className='w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#635BFF] transition-colors'
+                                required
                             />
 
                         </div>
@@ -173,7 +166,7 @@ export default function CreateAccount() {
                     <div>
 
                         <label className='block text-xs font-medium text-gray-700 mb-1'>
-                            Nama Toko
+                            Shop Name
                         </label>
 
                         <div className='relative'>
@@ -190,6 +183,7 @@ export default function CreateAccount() {
                                 value={storeName}
                                 onChange={(e) => setStoreName(e.target.value)}
                                 className='w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#635BFF] transition-colors'
+                                required
                             />
 
                         </div>
@@ -215,6 +209,7 @@ export default function CreateAccount() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className='w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#635BFF] transition-colors'
+                                required
                             />
 
                         </div>
@@ -238,6 +233,7 @@ export default function CreateAccount() {
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
                                 className='w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#635BFF] transition-colors appearance-none text-gray-500'
+                                required
                             >
                                 <option value="">
                                     Select Category
@@ -284,9 +280,14 @@ export default function CreateAccount() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className='w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#635BFF] transition-colors'
+                                required
                             />
 
                         </div>
+                        {/* KETENTUAN TEXT */}
+                        <p className='text-[10px] text-gray-400 mt-1 pl-1'>
+                            * Min. 8 karakter yang terdiri dari huruf besar, huruf kecil, dan angka.
+                        </p>
                     </div>
 
                     <div>
@@ -309,6 +310,7 @@ export default function CreateAccount() {
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 className='w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#635BFF] transition-colors'
+                                required
                             />
 
                         </div>
@@ -319,6 +321,7 @@ export default function CreateAccount() {
                         <input
                             type="checkbox"
                             className='rounded border-gray-300 text-[#635BFF] focus:ring-[#635BFF] cursor-pointer'
+                            required
                         />
 
                         <span className='text-[10px] text-gray-500 cursor-pointer'>
@@ -338,28 +341,7 @@ export default function CreateAccount() {
 
                         <div className='absolute inset-x-0 h-px bg-gray-200'></div>
 
-                        <span className='relative bg-white px-4 text-[10px] text-gray-500 font-medium'>
-                            Or Continue With
-                        </span>
-
                     </div>
-
-                    <button
-                        type='button'
-                        className='w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-sm font-medium py-2 rounded-lg transition-colors'
-                    >
-
-                        <img
-                            src={IconGoogle}
-                            alt="IkonGoogle"
-                            className="w-5 h-5 object-contain"
-                        />
-
-                        <span>
-                            Continue With Google
-                        </span>
-
-                    </button>
 
                     <p className='flex items-center justify-center'>
 

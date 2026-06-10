@@ -7,6 +7,7 @@ import PlatformComparison from "./pages/PlatformComparison";
 import ProductAnalyst from "./pages/ProductAnalyst";
 import CampaignPerformance from "./pages/CampaignPerformence";
 import Settings from "./pages/Settings";
+import ForgotPassword from './pages/ForgotPassword';
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -14,9 +15,12 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        
+        <Route path='/forgot-password' element={<ForgotPassword />} />
 
         {/* PUBLIC */}
         <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} /> 
         <Route path="/register" element={<CreateAccount />} />
 
         {/* PROTECTED */}

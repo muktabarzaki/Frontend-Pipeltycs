@@ -9,7 +9,7 @@ import LogoGoogle from '../icon/iconlogin/Google.svg';
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from 'react';
 
-import axios from "axios";
+import api from '../lib/axios';
 
 export default function Login() {
 
@@ -19,48 +19,18 @@ export default function Login() {
     const [password, setPassword] = useState("");
 
     // AUTO REDIRECT JIKA SUDAH LOGIN
-   
+    
 
     // HANDLE LOGIN
     const handleLogin = async (e) => {
-
         e.preventDefault();
-
         try {
-
-            const response = await axios.post(
-                "http://127.0.0.1:8000/api/login",
-                {
-                    email,
-                    password,
-                }
-            );
-
-            // SIMPAN TOKEN
-            localStorage.setItem(
-                "token",
-                response.data.token
-            );
-
-            // SIMPAN DATA USER
-            localStorage.setItem(
-                "user",
-                JSON.stringify(response.data.user)
-            );
-
-            alert("Login berhasil");
-
-            // REDIRECT DASHBOARD
-            navigate("/dashboard");
-
+            const response = await api.post('/login', { email, password });
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            navigate('/dashboard');
         } catch (error) {
-
-            console.log(error.response?.data);
-
-            alert(
-                error.response?.data?.message ||
-                "Login gagal"
-            );
+            alert(error.response?.data?.message || 'Login gagal');
         }
     };
 
@@ -142,6 +112,7 @@ export default function Login() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className='w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] transition-all'
+                                required
                             />
 
                         </div>
@@ -167,6 +138,7 @@ export default function Login() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className='w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] transition-all'
+                                required
                             />
 
                         </div>
@@ -187,12 +159,12 @@ export default function Login() {
 
                         </label>
 
-                        <a
-                            href="#"
-                            className='text-medium bg-gradient-to-r from-[#6155F5] to-[#CB30E0] bg-clip-text text-transparent hover:text-[#c038d6] font-medium'
+                        <Link
+                        to="/forgot-password"
+                        className='text-medium bg-gradient-to-r from-[#6155F5] to-[#CB30E0] bg-clip-text text-transparent hover:text-[#c038d6] font-medium'
                         >
-                            forgot password
-                        </a>
+                        forgot password
+                        </Link>
 
                     </div>
 
@@ -207,28 +179,7 @@ export default function Login() {
 
                         <div className='absolute inset-x-0 h-px bg-gray-200'></div>
 
-                        <span className='relative bg-white px-4 text-xs text-gray-500'>
-                            Or Continue with
-                        </span>
-
                     </div>
-
-                    <button
-                        type='button'
-                        className='w-full flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 font-medium py-2.5 rounded-lg transition-colors'
-                    >
-
-                        <img
-                            src={LogoGoogle}
-                            alt="Google"
-                            className='w-5 h-5 object-contain'
-                        />
-
-                        <span className='flex-shrink-0'>
-                            Continue With Google
-                        </span>
-
-                    </button>
 
                     <p className="text-center text-sm text-gray-600 mt-6">
 

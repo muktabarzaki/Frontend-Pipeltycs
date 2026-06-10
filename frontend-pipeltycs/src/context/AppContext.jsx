@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react';
+import { translations } from './translations';
 
 const AppContext = createContext();
 
@@ -12,7 +13,8 @@ export function AppProvider({ children }) {
         return '$ ' + Number(amount).toLocaleString('en-US');
     };
 
-    const t = (en, id) => language === 'id' ? id : en;
+    // ✅ SATU fungsi t pakai key dari translations.js
+    const t = (key) => translations[language]?.[key] || translations['en'][key] || key;
 
     return (
         <AppContext.Provider value={{ currency, setCurrency, language, setLanguage, formatCurrency, t }}>
